@@ -1,0 +1,43 @@
+/* Satoshi  */
+
+@font-face {
+  font-family: "satoshi";
+  src: url("./assets/fonts/satoshi/Satoshi-Bold.otf") format("opentype");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "satoshi";
+  src: url("./assets/fonts/satoshi/Satoshi-Medium.otf") format("opentype");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "satoshi";
+  src: url("./assets/fonts/satoshi/Satoshi-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "satoshi";
+  src: url("./assets/fonts/satoshi/Satoshi-Light.otf") format("opentype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "integral-cf";
+  src: url("./assets/fonts/integralCF/Fontspring-DEMO-integralcf-bold.otf")
+    format("opentype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "integral-cf";
+  src: url("./assets/fonts/integralCF/Fontspring-DEMO-integralcf-demibold.otf")
+    format("opentype");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "integral-cf";
+  src: url("./assets/fonts/integralCF/Fontspring-DEMO-integralcf-extrabold.otf")
+    format("opentype");
+  font-weight: 900;
+}

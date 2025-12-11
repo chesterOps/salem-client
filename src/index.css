@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "./font.css";
+@import "swiper/css";
+@import "swiper/css/free-mode";
+@import "swiper/css/navigation";
+@import "swiper/css/thumbs";
+
+@layer base {
+  /* Resets */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .satoshi {
+    font-family: "satoshi", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+
+  .integral-cf {
+    font-family: "integral-cf", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    line-height: 1.5;
+    background-color: #fff;
+    color: black;
+    font-weight: 400;
+    font-family: "satoshi", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 700;
+    font-family: "integral-cf", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+
+  .icon-btn {
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-btn:hover svg {
+    transform: scale(1.1);
+    transition: transform 100ms ease-in-out;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Product Grid thumbnail active state */
+  .thumbs-swiper .swiper-slide-thumb-active > div {
+    border-color: black !important;
+  }
+
+  /* Fix thumbnail swiper slide height */
+  .thumbs-swiper .swiper-slide {
+    height: auto !important;
+  }
+
+  .thumbs-swiper .swiper-wrapper {
+    align-items: stretch;
+  }
+
+  /* Remove bottom margin from last thumbnail on desktop */
+  @media (min-width: 1280px) {
+    .thumbs-swiper .swiper-slide:last-child {
+      margin-bottom: 0 !important;
+    }
+  }
+}
