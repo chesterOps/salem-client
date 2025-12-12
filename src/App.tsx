@@ -5,7 +5,6 @@ import ScrollTop from "./components/ScrollTop";
 import ProductPage from "./routes/ProductPage";
 import Cart from "./routes/Cart";
 import Category from "./routes/Category";
-import Checkout from "./routes/Checkout";
 
 function App() {
   return (
@@ -17,7 +16,6 @@ function App() {
           <Route path="/category/:name" element={<Category />} />
           <Route path="/shop/:id" element={<ProductPage />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
         </Route>
       </Routes>
     </BrowserRouter>

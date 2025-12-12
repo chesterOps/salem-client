@@ -8,6 +8,8 @@ import Stars from "../components/Stars";
 import ScPlus from "../assets/icons/ScPlus";
 import ScMinus from "../assets/icons/ScMinus";
 import ProductGrid from "../components/product/ProductGrid";
+import ScCheck from "../assets/icons/ScCheck";
+import { checkLightness } from "../utils/helpers";
 
 function ProductPage() {
   const [quantity, setQuantity] = useState(1);
@@ -84,14 +86,21 @@ function ProductPage() {
                     <button
                       key={color.name}
                       onClick={() => setSelectedColor(color.name)}
-                      className={`w-10 h-10 lg:w-[37px] font-medium lg:h-[37px] rounded-full transition-all ${
-                        selectedColor === color.name
-                          ? "ring-2 ring-offset-2 ring-black"
-                          : "hover:ring-2 hover:ring-offset-2 hover:ring-black/30"
-                      }`}
+                      className={`w-10 h-10 lg:w-[37px] font-medium border-2 border-black/20 lg:h-[37px] flex justify-center items-center rounded-full transition-all`}
                       style={{ backgroundColor: color.hex }}
                       aria-label={color.name}
-                    />
+                    >
+                      {selectedColor === color.name && (
+                        <ScCheck
+                          className="size-[17px] lg:size-4"
+                          color={
+                            checkLightness(color.hex) === "light"
+                              ? "#707070"
+                              : "white"
+                          }
+                        />
+                      )}
+                    </button>
                   ))}
                 </div>
               </div>
