@@ -80,19 +80,21 @@ function MobileProductsFilter({
       />
       <div
         className={twMerge(
-          "w-full left-0 opacity-0 transition-all pointer-events-none lg:hidden rounded-t-[20px] fixed z-60 bottom-0 duration-200 ease-out max-h-full bg-white overflow-y-auto translate-y-1/2 pt-5 pb-[25px] px-5",
+          "w-full left-0 opacity-0 transition-all pointer-events-none lg:hidden rounded-t-[20px] fixed z-60 bottom-0 duration-200 ease-out max-h-full bg-white overflow-y-auto translate-y-1/2  pb-[25px] px-5",
           open && "opacity-100 pointer-events-auto translate-y-0"
         )}
       >
         <div className="">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl leading-7 font-bold satoshi">Filters</h2>
-            <button onClick={handleClose}>
-              <ScClose size={24} color="#999999" />
-            </button>
+          <div className="sticky top-0 z-100 pt-5 bg-white left-0">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl leading-7 font-bold satoshi">Filters</h2>
+              <button onClick={handleClose}>
+                <ScClose size={24} color="#999999" />
+              </button>
+            </div>
+            <hr className="border-black/10 mb-5" />
           </div>
 
-          <hr className="border-black/10 mb-5" />
           {/* Categories */}
           <div className="mb-4 flex flex-col gap-5">
             {categories.map((category) => (
