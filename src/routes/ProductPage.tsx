@@ -1,20 +1,25 @@
 import React, { useState } from "react";
-import { product } from "../data/product";
-import BreadCrumb from "../components/BreadCrumb";
-import RelatedProducts from "../components/product/RelatedProducts";
-import Container from "../components/Container";
-import Button from "../components/Button";
-import Stars from "../components/Stars";
-import ScPlus from "../assets/icons/ScPlus";
-import ScMinus from "../assets/icons/ScMinus";
-import ProductGrid from "../components/product/ProductGrid";
+import { BsCheck2Circle } from "react-icons/bs";
+import { useDispatch } from "react-redux";
 import ScCheck from "../assets/icons/ScCheck";
+import ScMinus from "../assets/icons/ScMinus";
+import ScPlus from "../assets/icons/ScPlus";
+import { addItem } from "../cartSlice";
+import BreadCrumb from "../components/BreadCrumb";
+import Button from "../components/Button";
+import Container from "../components/Container";
+import ProductGrid from "../components/product/ProductGrid";
+import RelatedProducts from "../components/product/RelatedProducts";
+import Stars from "../components/Stars";
+import { product } from "../data/product";
 import { checkLightness } from "../utils/helpers";
 
 function ProductPage() {
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
   const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
   const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
+  const dispatch = useDispatch();
 
   const discountedPrice = product.discount
     ? product.price * (1 - product.discount / 100)
@@ -27,6 +32,31 @@ function ProductPage() {
       setQuantity((prev) => prev - 1);
     }
   };
+
+  // Handle add to cart
+  function handleAddToCart() {
+    // Dispatch add to cart action
+    dispatch(
+      addItem({
+        id: `${product.id}-${selectedSize}-${selectedColor}`,
+        price: discountedPrice,
+        size: selectedSize,
+        color: selectedColor,
+        title: product.name,
+        image: product.images[0],
+        slug: product.slug,
+        quantity,
+      })
+    );
+
+    // Show added state
+    setAdded(true);
+
+    // Reset added state after 2 seconds
+    setTimeout(() => {
+      setAdded(false);
+    }, 2000);
+  }
 
   return (
     <main>
@@ -153,9 +183,17 @@ function ProductPage() {
                 {/* Add to Cart Button */}
                 <Button
                   color="black"
-                  className="flex-1 w-full max-w-100 lg:max-w-none  h-11 lg:h-13"
+                  onClick={handleAddToCart}
+                  className="flex-1 w-full max-w-100 lg:max-w-none gap-2  h-11 lg:h-13"
+                  disabled={added}
                 >
-                  Add to Cart
+                  {added ? (
+                    <React.Fragment>
+                      <BsCheck2Circle size={20} /> Added to Cart
+                    </React.Fragment>
+                  ) : (
+                    "Add to Cart"
+                  )}
                 </Button>
               </div>
             </div>

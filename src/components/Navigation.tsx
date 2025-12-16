@@ -1,19 +1,22 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { navigationLinks } from "../utils/constants";
-import Container from "./Container";
+import { getCartItemCount } from "../cartSlice";
+import ScBars from "../assets/icons/ScBars";
 import ScCart from "../assets/icons/ScCart";
 import ScSearch from "../assets/icons/ScSearch";
-import ScBars from "../assets/icons/ScBars";
+import Container from "./Container";
 import Logo from "./Logo";
 import MobileNavigation from "./MobileNavigation";
-import SearchBar from "./SearchBar";
 import MobileSearch from "./MobileSearch";
+import SearchBar from "./SearchBar";
 
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const cartTotal = useSelector(getCartItemCount);
 
   return (
     <React.Fragment>
@@ -76,8 +79,19 @@ function Navigation() {
               </button>
             </div>
             {/* Cart Icon */}
-            <Link to="/cart" className="icon-btn">
+            <Link
+              to="/cart"
+              className={twMerge(
+                "icon-btn relative inline-block",
+                cartTotal > 0 && "pr-1.5"
+              )}
+            >
               <ScCart />
+              {cartTotal > 0 && (
+                <span className="absolute size-[18px] pointer-events-none right-0 -top-1.5 bg-black rounded-full text-white flex items-center justify-center font-medium text-[11px]">
+                  {cartTotal}
+                </span>
+              )}
             </Link>
           </div>
         </Container>

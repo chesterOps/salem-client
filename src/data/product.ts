@@ -20,6 +20,7 @@ export const product = {
       name: "Navy Blue",
     },
   ],
+  slug: "one-life-graphic-tshirt",
   sizes: ["Small", "Medium", "Large", "X-Large"],
   images: ["/product-1.jpg", "/product-2.jpg", "/product-3.jpg"],
 };
