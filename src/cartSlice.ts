@@ -12,10 +12,24 @@ export type CartItem = {
   quantity: number;
 };
 
+// Load cart from localStorage
+const loadCartFromLocalStorage = (): Array<CartItem> => {
+  try {
+    const serializedCart = localStorage.getItem("salem-cart");
+    if (serializedCart === null) {
+      return [];
+    }
+    return JSON.parse(serializedCart);
+  } catch (err) {
+    console.error("Error loading cart from localStorage:", err);
+    return [];
+  }
+};
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    items: [] as Array<CartItem>,
+    items: loadCartFromLocalStorage(),
   },
   reducers: {
     // Adds an item to the cart
