@@ -55,7 +55,7 @@ function ProductGrid({ product }: { product: any }) {
               <div className="w-full lg:w-[152px] h-[106px] min-[400px]:h-auto bg-[#F0EEED] aspect-square xl:h-[178px] rounded-[20px] border border-[#e4e4e4] overflow-hidden cursor-pointer hover:border-black/30 transition-all">
                 <img
                   src={img}
-                  alt={`${product.name} view ${i + 1}`}
+                  alt={`${product.title} view ${i + 1}`}
                   className="w-full h-full object-bottom object-contain xl:object-cover"
                 />
               </div>

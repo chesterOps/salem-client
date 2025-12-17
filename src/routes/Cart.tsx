@@ -17,6 +17,7 @@ import BreadCrumb from "../components/BreadCrumb";
 import Button from "../components/Button";
 import Container from "../components/Container";
 import { Link } from "react-router-dom";
+import { sizes } from "../utils/constants";
 
 function Cart() {
   // Get cart items from Redux store
@@ -62,7 +63,7 @@ function Cart() {
             </p>
 
             {/* Continue Shopping Button */}
-            <Link to="/">
+            <Link to="/shop">
               <Button color="black" className="px-12  h-[42px]">
                 <span className="text-sm lg:text-base">Return to Shop</span>
               </Button>
@@ -112,7 +113,10 @@ function Cart() {
                         </div>
                         <p className="text-xs text-black mb-0.5 lg:mb-1 lg:text-sm">
                           Size:{" "}
-                          <span className="text-black/60">{item.size}</span>
+                          <span className="text-black/60">
+                            {sizes[item.size as keyof typeof sizes] ||
+                              item.size}
+                          </span>
                         </p>
                         <p className="text-xs text-black mb-0.5 lg:mb-1 lg:text-sm">
                           Color:{" "}
@@ -121,9 +125,27 @@ function Cart() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-xl leading-7 lg:text-2xl lg:leading-8 font-bold satoshi">
-                          ${item.price}
-                        </span>
+                        <div className="flex items-center gap-2 lg:gap-2.5">
+                          <span className="text-xl leading-7 lg:text-2xl lg:leading-8 font-bold satoshi">
+                            $
+                            {item.discount
+                              ? (
+                                  item.price -
+                                  (item.price * item.discount) / 100
+                                ).toFixed(0)
+                              : item.price}
+                          </span>
+                          {item.discount && (
+                            <>
+                              <span className="text-xl leading-7 lg:text-2xl lg:leading-8 font-bold satoshi text-black/40 line-through">
+                                ${item.price}
+                              </span>
+                              <span className="text-[10px] lg:text-xs leading-3.5 font-medium text-[#FF3333] bg-[#FF3333]/10 rounded-full px-2 lg:px-3.5 py-1.5">
+                                -{item.discount}%
+                              </span>
+                            </>
+                          )}
+                        </div>
 
                         {/* Quantity Control */}
                         <div className="flex items-center justify-between h-[31px] w-[105px] lg:w-[126px] lg:h-11 bg-[#F0F0F0] rounded-full px-3.5 lg:px-5 py-2 lg:py-3">

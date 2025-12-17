@@ -1,29 +1,44 @@
-import React, { useState } from "react";
 import { BsCheck2Circle } from "react-icons/bs";
+import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { addItem } from "../cartSlice";
+import { useGetProductByIdQuery } from "../services/productApi";
+import { checkLightness } from "../utils/helpers";
+import React, { useEffect, useState } from "react";
 import ScCheck from "../assets/icons/ScCheck";
 import ScMinus from "../assets/icons/ScMinus";
 import ScPlus from "../assets/icons/ScPlus";
-import { addItem } from "../cartSlice";
 import BreadCrumb from "../components/BreadCrumb";
 import Button from "../components/Button";
 import Container from "../components/Container";
 import ProductGrid from "../components/product/ProductGrid";
 import RelatedProducts from "../components/product/RelatedProducts";
 import Stars from "../components/Stars";
-import { product } from "../data/product";
-import { checkLightness } from "../utils/helpers";
+import { sizes } from "../utils/constants";
 
 function ProductPage() {
+  const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
+  const { data: product, error, isLoading } = useGetProductByIdQuery(`${id}`);
   const [added, setAdded] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0].name);
+  const [selectedSize, setSelectedSize] = useState(product?.sizes[0] ?? "");
+  const [selectedColor, setSelectedColor] = useState(
+    product?.colors[0].name ?? ""
+  );
   const dispatch = useDispatch();
 
-  const discountedPrice = product.discount
-    ? product.price * (1 - product.discount / 100)
-    : product.price;
+  // Set selected size and color when product data is loaded
+  useEffect(() => {
+    if (product) {
+      setSelectedSize(product.sizes[0]);
+      setSelectedColor(product.colors[0].name);
+    }
+  }, [product]);
+
+  const discountedPrice =
+    product && product.discount
+      ? product.price * (1 - product.discount / 100)
+      : product?.price;
 
   const handleQuantityChange = (type: "increment" | "decrement") => {
     if (type === "increment") {
@@ -36,18 +51,20 @@ function ProductPage() {
   // Handle add to cart
   function handleAddToCart() {
     // Dispatch add to cart action
-    dispatch(
-      addItem({
-        id: `${product.id}-${selectedSize}-${selectedColor}`,
-        price: discountedPrice,
-        size: selectedSize,
-        color: selectedColor,
-        title: product.name,
-        image: product.images[0],
-        slug: product.slug,
-        quantity,
-      })
-    );
+    if (product)
+      dispatch(
+        addItem({
+          id: `${product.id}-${selectedSize}-${selectedColor}`,
+          price: product.price,
+          size: selectedSize,
+          color: selectedColor,
+          title: product.title,
+          image: product.mainImage,
+          slug: product.slug,
+          discount: product.discount,
+          quantity,
+        })
+      );
 
     // Show added state
     setAdded(true);
@@ -57,12 +74,19 @@ function ProductPage() {
       setAdded(false);
     }, 2000);
   }
+  console.log(error);
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error) return <div>Error loading product.</div>;
+
+  if (!product) return <div>Product not found.</div>;
 
   return (
     <main>
       {/* BreadCrumb */}
       <BreadCrumb
-        links={[{ name: "Shop", url: "/shop" }, { name: "T-shirts" }]}
+        links={[{ name: "Shop", url: "/shop" }, { name: product.title }]}
       />
 
       {/* Product Details */}
@@ -74,7 +98,7 @@ function ProductPage() {
             {/* Product Info */}
             <div className="flex flex-col w-full md:w-[calc(50%-20px)]">
               <h1 className="text-2xl leading-7 lg:text-[40px] lg:leading-12 mb-3 lg:mb-3.5">
-                {product.name}
+                {product.title}
               </h1>
 
               {/* Rating */}
@@ -112,7 +136,7 @@ function ProductPage() {
                   Select Colors
                 </p>
                 <div className="flex gap-3  items-center lg:gap-4">
-                  {product.colors.map((color) => (
+                  {product.colors.map((color: any) => (
                     <button
                       key={color.name}
                       onClick={() => setSelectedColor(color.name)}
@@ -141,7 +165,7 @@ function ProductPage() {
                   Choose Size
                 </p>
                 <div className="flex flex-wrap gap-2 lg:gap-3">
-                  {product.sizes.map((size) => (
+                  {product.sizes.map((size: string) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
@@ -151,7 +175,7 @@ function ProductPage() {
                           : "bg-[#F0F0F0] text-black/60 hover:bg-black/10 "
                       }`}
                     >
-                      {size}
+                      {sizes[size as keyof typeof sizes] || size}
                     </button>
                   ))}
                 </div>
@@ -189,7 +213,7 @@ function ProductPage() {
                 >
                   {added ? (
                     <React.Fragment>
-                      <BsCheck2Circle size={20} /> Added to Cart
+                      <BsCheck2Circle size={24} /> Added to Cart
                     </React.Fragment>
                   ) : (
                     "Add to Cart"

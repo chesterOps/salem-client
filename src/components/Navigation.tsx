@@ -65,7 +65,7 @@ function Navigation() {
           </ul>
           {/* Desktop Search Bar */}
           <SearchBar />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 lg:gap-0">
             {/* Search Icon */}
             <div className="cursor-pointer flex items-center">
               <button
@@ -81,14 +81,11 @@ function Navigation() {
             {/* Cart Icon */}
             <Link
               to="/cart"
-              className={twMerge(
-                "icon-btn relative inline-block",
-                cartTotal > 0 && "pr-1.5"
-              )}
+              className="icon-btn relative inline-block pr-1.5 lg:pr-0"
             >
               <ScCart />
               {cartTotal > 0 && (
-                <span className="absolute size-[18px] pointer-events-none right-0 -top-1.5 bg-black rounded-full text-white flex items-center justify-center font-medium text-[11px]">
+                <span className="absolute size-[18px] pointer-events-none lg:-right-1.5 right-0 -top-1.5 bg-black rounded-full text-white flex items-center justify-center font-medium text-[11px]">
                   {cartTotal}
                 </span>
               )}
