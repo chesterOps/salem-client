@@ -4,17 +4,21 @@ import Hero from "../components/home/Hero";
 import NewArrivals from "../components/home/NewArrivals";
 import Reviews from "../components/home/Reviews";
 import TopSelling from "../components/home/TopSelling";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 function Home() {
   return (
-    <main className="">
-      <Hero />
-      <Brands />
-      <NewArrivals />
-      <TopSelling />
-      <Categories />
-      <Reviews />
-    </main>
+    useDocumentTitle("Home"),
+    (
+      <main className="">
+        <Hero />
+        <Brands />
+        <NewArrivals />
+        <TopSelling />
+        <Categories />
+        <Reviews />
+      </main>
+    )
   );
 }
 

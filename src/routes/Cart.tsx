@@ -18,6 +18,7 @@ import Button from "../components/Button";
 import Container from "../components/Container";
 import { Link } from "react-router-dom";
 import { sizes } from "../utils/constants";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 function Cart() {
   // Get cart items from Redux store
@@ -28,6 +29,8 @@ function Cart() {
 
   // Subtotal
   const subTotal = useSelector(getCartTotal);
+
+  useDocumentTitle("Cart");
 
   // Delivery fee - fixed
   const deliveryFee = 15;
@@ -41,14 +44,14 @@ function Cart() {
     <main>
       {/* Breadcrumb */}
       <BreadCrumb links={[{ name: "Cart" }]} />
-      <Container className="mb-[50px] lg:mb-20">
+      <Container className="">
         <h1 className="text-[32px] mb-5 lg:mb-6 leading-9.5 lg:text-[40px] lg:leading-12">
           your cart
         </h1>
         {/* Check if cartItems is empty */}
 
         {cartItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 lg:py-24">
+          <div className="flex flex-col items-center justify-center py-20 lg:py-32">
             {/* Cart Icon */}
             <div className="mb-6 lg:mb-8 p-8 bg-black/5 rounded-full">
               <ScCart size={80} color="#00000040" />
@@ -64,13 +67,13 @@ function Cart() {
 
             {/* Continue Shopping Button */}
             <Link to="/shop">
-              <Button color="black" className="px-12  h-[42px]">
+              <Button color="black" className="px-8  h-[42px]">
                 <span className="text-sm lg:text-base">Return to Shop</span>
               </Button>
             </Link>
           </div>
         ) : (
-          <div className="-mx-4 px-4 flex flex-wrap gap-5">
+          <div className="-mx-4 px-4 flex flex-wrap gap-5 mb-[50px] lg:mb-20">
             {/* Cart Items */}
 
             <div className="lg:w-[calc(58.5%-10px)] w-full h-fit border border-black/10 rounded-[20px] p-3.5 lg:py-5 lg:px-6">
@@ -95,9 +98,12 @@ function Cart() {
                     {/* Product Info */}
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="flex justify-between items-start mb-1">
-                          <Link to={`/product/${item.slug}`}>
-                            <h3 className="text-base lg:text-xl satoshi font-bold leading-5.5 lg:leading-7">
+                        <div className="flex justify-between gap-2 items-start mb-1">
+                          <Link
+                            to={`/product/${item.slug}`}
+                            className="wrap-break-word"
+                          >
+                            <h3 className="text-base lg:text-xl  satoshi font-bold leading-5.5 lg:leading-7">
                               {item.title}
                             </h3>
                           </Link>
@@ -124,7 +130,7 @@ function Cart() {
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2 lg:gap-2.5">
                           <span className="text-xl leading-7 lg:text-2xl lg:leading-8 font-bold satoshi">
                             $
@@ -215,7 +221,7 @@ function Cart() {
 
               {/* Promo Code */}
               <div className="flex gap-3 flex-col min-[400px]:flex-row mb-4 lg:mb-6">
-                <div className="flex items-center gap-2.5 lg:gap-3 flex-1 px-4 bg-[#F0F0F0] py-3.5 lg:py-3 rounded-full text-sm lg:text-base lg:leading-5.5">
+                <div className="flex items-center gap-2.5 lg:gap-3 flex-1 min-w-0 px-4 bg-[#F0F0F0] py-3.5 lg:py-3 rounded-full text-sm lg:text-base lg:leading-5.5">
                   <ScCoupon className="size-5 lg:size-6" />
                   <input
                     type="text"

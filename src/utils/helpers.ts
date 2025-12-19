@@ -9,3 +9,8 @@ export function checkLightness(hexColor: string): "light" | "dark" {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return luminance > 0.9 ? "light" : "dark";
 }
+
+// Converts a slug string to a human-readable format
+export function unSlugify(slug: string): string {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}

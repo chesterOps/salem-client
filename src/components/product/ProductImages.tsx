@@ -3,13 +3,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Thumbs } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 
-function ProductGrid({ product }: { product: any }) {
+function ProductImages({ product }: { product: any }) {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
   return (
     <div className="flex flex-col gap-3 xl:flex-row lg:gap-3.5 w-full md:w-[calc(50%-20px)]">
       {/* Main Image */}
-      <div className="w-full rounded-[20px] bg-[#F0EEED] aspect-square border border-[#e4e4e4] overflow-hidden order-1 xl:order-2 flex-1">
+      <div className="w-full rounded-[20px] bg-[#F0EEED] xl:h-full aspect-square border border-[#e4e4e4] overflow-hidden order-1 xl:order-2 flex-1">
         <Swiper
           spaceBetween={10}
           thumbs={{
@@ -67,4 +67,4 @@ function ProductGrid({ product }: { product: any }) {
   );
 }
 
-export default ProductGrid;
+export default ProductImages;

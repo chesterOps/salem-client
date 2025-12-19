@@ -5,6 +5,7 @@ import ScrollTop from "./components/ScrollTop";
 import ProductPage from "./routes/ProductPage";
 import Cart from "./routes/Cart";
 import Category from "./routes/Category";
+import NotFound from "./routes/NotFound";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/category/:name" element={<Category />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

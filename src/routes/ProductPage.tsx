@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addItem } from "../cartSlice";
 import { useGetProductByIdQuery } from "../services/productApi";
-import { checkLightness } from "../utils/helpers";
+import { checkLightness, unSlugify } from "../utils/helpers";
 import React, { useEffect, useState } from "react";
 import ScCheck from "../assets/icons/ScCheck";
 import ScMinus from "../assets/icons/ScMinus";
@@ -11,10 +11,13 @@ import ScPlus from "../assets/icons/ScPlus";
 import BreadCrumb from "../components/BreadCrumb";
 import Button from "../components/Button";
 import Container from "../components/Container";
-import ProductGrid from "../components/product/ProductGrid";
 import RelatedProducts from "../components/product/RelatedProducts";
 import Stars from "../components/Stars";
 import { sizes } from "../utils/constants";
+import ProductImages from "../components/product/ProductImages";
+import ProductPageSkeleton from "../components/product/ProductPageSkeleton";
+import NotFound from "./NotFound";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 function ProductPage() {
   const { id } = useParams();
@@ -26,6 +29,11 @@ function ProductPage() {
     product?.colors[0].name ?? ""
   );
   const dispatch = useDispatch();
+
+  // Unslugify product slug
+  const pageTitle = unSlugify(id || "");
+
+  useDocumentTitle(pageTitle);
 
   // Set selected size and color when product data is loaded
   useEffect(() => {
@@ -76,11 +84,23 @@ function ProductPage() {
   }
   console.log(error);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <ProductPageSkeleton />;
 
-  if (error) return <div>Error loading product.</div>;
-
-  if (!product) return <div>Product not found.</div>;
+  if ((error as any)?.status === 404 || !product) {
+    return (
+      <NotFound
+        title="Product not found"
+        message="The product you're looking for doesn't exist or has been removed."
+      />
+    );
+  } else if (error) {
+    return (
+      <NotFound
+        title="Error loading product"
+        message="We encountered an error while loading this product."
+      />
+    );
+  }
 
   return (
     <main>
@@ -94,7 +114,7 @@ function ProductPage() {
         <Container>
           <div className="-mx-4 px-4 lg:gap-10 gap-5 flex flex-wrap">
             {/* Product Images */}
-            <ProductGrid product={product} />
+            <ProductImages product={product} />
             {/* Product Info */}
             <div className="flex flex-col w-full md:w-[calc(50%-20px)]">
               <h1 className="text-2xl leading-7 lg:text-[40px] lg:leading-12 mb-3 lg:mb-3.5">
