@@ -24,7 +24,7 @@ function ProductImages({ product }: { product: any }) {
             <SwiperSlide key={i} className="h-full">
               <img
                 src={img}
-                alt={`${product.name} ${i + 1}`}
+                alt={`${product.title} ${i + 1}`}
                 className="w-full h-full object-bottom object-contain xl:object-cover cursor-pointer"
               />
             </SwiperSlide>
