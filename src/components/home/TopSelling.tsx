@@ -2,11 +2,17 @@ import Container from "../Container";
 import Button from "../Button";
 import ProductItem from "../product/ProductItem";
 import { Link } from "react-router-dom";
-import { products } from "../../data/products";
 import { twMerge } from "tailwind-merge";
+import { useGetAllProductsQuery } from "../../services/productApi";
+import ProductLoader from "../product/ProductLoader";
+import React from "react";
 
 function TopSelling() {
-  const topSellingProducts = products.slice(4, 8);
+  const {
+    data: topSellingProducts,
+    isLoading,
+    error,
+  } = useGetAllProductsQuery("sort=-sales&limit=4");
   return (
     <section className="mt-[50px] lg:mt-20">
       <Container>
@@ -15,31 +21,47 @@ function TopSelling() {
             Top Selling
           </h1>
           {/* Top Selling Grid */}
-          <div className="overflow-x-auto -mx-4 px-4 mb-6 lg:mb-9 scrollbar-hide">
-            <div className="flex gap-4 lg:gap-5">
-              {topSellingProducts.map((product, index) => (
-                <div
-                  key={product.id}
-                  className={twMerge(
-                    " md:w-[calc(33.333%-11px)] lg:w-[calc(25%-15px)] shrink-0",
-                    index === topSellingProducts.length - 1 && "pr-4 lg:pr-0"
+          <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
+            {isLoading && (
+              <div className="flex gap-4 lg:gap-5">
+                <ProductLoader
+                  length={4}
+                  productClassName={twMerge(
+                    " sm:w-[calc(33.333%-11px)] lg:w-[calc(25%-15px)] shrink-0 w-[calc(50%-8px)] min-w-[200px]"
                   )}
-                >
-                  <ProductItem product={product} />
+                />
+              </div>
+            )}
+            {!isLoading && topSellingProducts && (
+              <React.Fragment>
+                <div className="flex gap-4 lg:gap-5">
+                  {topSellingProducts.map((product, index) => (
+                    <div
+                      key={product.id}
+                      className={twMerge(
+                        " md:w-[calc(33.333%-11px)] lg:w-[calc(25%-15px)] shrink-0",
+                        index === topSellingProducts.length - 1 &&
+                          "pr-4 lg:pr-0"
+                      )}
+                    >
+                      <ProductItem product={product} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-          {/* Shop button */}
-          <div className="flex justify-center">
-            <Link to="/shop" className="w-full min-[400px]:w-auto">
-              <Button
-                color="white"
-                className="w-full min-[400px]:w-auto min-w-[218px] h-[46px] lg:h-[52px]"
-              >
-                View All
-              </Button>
-            </Link>
+                {/* Shop button */}
+                <div className="flex justify-center mt-6 lg:mt-9 ">
+                  <Link to="/shop" className="w-full min-[400px]:w-auto">
+                    <Button
+                      color="white"
+                      className="w-full min-[400px]:w-auto min-w-[218px] h-[46px] lg:h-[52px]"
+                    >
+                      View All
+                    </Button>
+                  </Link>
+                </div>
+              </React.Fragment>
+            )}
+            {!isLoading && error && <div>Something went wrong.</div>}
           </div>
         </div>
       </Container>

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { addItem } from "../cartSlice";
 import { useGetProductByIdQuery } from "../services/productApi";
 import { checkLightness, unSlugify } from "../utils/helpers";
+import { sizes } from "../utils/constants";
 import React, { useEffect, useState } from "react";
 import ScCheck from "../assets/icons/ScCheck";
 import ScMinus from "../assets/icons/ScMinus";
@@ -13,7 +14,6 @@ import Button from "../components/Button";
 import Container from "../components/Container";
 import RelatedProducts from "../components/product/RelatedProducts";
 import Stars from "../components/Stars";
-import { sizes } from "../utils/constants";
 import ProductImages from "../components/product/ProductImages";
 import ProductPageSkeleton from "../components/product/ProductPageSkeleton";
 import NotFound from "./NotFound";
@@ -82,7 +82,6 @@ function ProductPage() {
       setAdded(false);
     }, 2000);
   }
-  console.log(error);
 
   if (isLoading) return <ProductPageSkeleton />;
 

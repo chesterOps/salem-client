@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-interface Product {
+export interface Product {
   id: string;
   title: string;
   price: number;
@@ -31,6 +31,11 @@ export const productApi = createApi({
       query: (id: string) => `/products/${id}`,
       transformResponse: (response: ProductResponse) => response.data,
     }),
+    getAllProducts: builder.query<Product[], string | undefined>({
+      query: (params) =>
+        `/products${params ? `?${new URLSearchParams(params)}` : ""}`,
+      transformResponse: (response: { data: Product[] }) => response.data,
+    }),
   }),
 });
-export const { useGetProductByIdQuery } = productApi;
+export const { useGetProductByIdQuery, useGetAllProductsQuery } = productApi;

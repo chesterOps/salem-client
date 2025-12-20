@@ -2,20 +2,13 @@ import React from "react";
 import Stars from "../Stars";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
+import type { Product } from "../../services/productApi";
 
 function ProductItem({
   product,
   imgCss,
 }: {
-  product: {
-    id: number;
-    image: string;
-    name: string;
-    slug: string;
-    rating: number;
-    price: number;
-    discount?: number;
-  };
+  product: Product;
   imgCss?: string;
 }) {
   // Calculate discounted price
@@ -31,8 +24,8 @@ function ProductItem({
         className="bg-[#F0EEED] rounded-[13px] justify-center items-center flex mb-2.5 lg:mb-4 lg:rounded-[20px] overflow-hidden group"
       >
         <img
-          src={product.image}
-          alt={product.name}
+          src={product.mainImage}
+          alt={product.title}
           className={twMerge(
             "md:w-full h-full block w-[200px] object-cover group-hover:scale-110 transition-transform duration-300",
             imgCss && imgCss
@@ -45,7 +38,7 @@ function ProductItem({
         {/* Product Name */}
         <Link to={`/product/${product.slug}`}>
           <h3 className="text-base leading-[22px] lg:text-[20px] lg:leading-7 mb-1 lg:mb-2 font-bold satoshi line-clamp-2 cursor-pointer">
-            {product.name}
+            {product.title}
           </h3>
         </Link>
 
