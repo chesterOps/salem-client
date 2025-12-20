@@ -61,7 +61,9 @@ function NewArrivals() {
                 </div>
               </React.Fragment>
             )}
-            {!isLoading && error && <div>Something went wrong.</div>}
+            {!isLoading && error && (
+              <div className="text-center">Something went wrong.</div>
+            )}
           </div>
         </div>
       </Container>

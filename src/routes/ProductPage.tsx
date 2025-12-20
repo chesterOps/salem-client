@@ -201,9 +201,9 @@ function ProductPage() {
               </div>
 
               {/* Quantity and Add to Cart */}
-              <div className="flex flex-col min-[400px]:flex-row gap-3 lg:gap-5">
+              <div className="flex flex-row gap-3 lg:gap-5">
                 {/* Quantity Selector */}
-                <div className="flex items-center justify-between h-11 lg:h-13 bg-[#F0F0F0] rounded-full px-4 py-3 lg:py-3.5 lg:px-5 w-[110px] min-[500px]:w-[170px]">
+                <div className="flex  items-center justify-between h-11 lg:h-13 bg-[#F0F0F0] rounded-full px-4 py-3 lg:py-3.5 lg:px-5 w-[110px] min-[500px]:w-[170px]">
                   <button
                     onClick={() => handleQuantityChange("decrement")}
                     className="hover:opacity-70 transition-opacity"
@@ -227,7 +227,7 @@ function ProductPage() {
                 <Button
                   color="black"
                   onClick={handleAddToCart}
-                  className="flex-1 w-full max-w-100 lg:max-w-none gap-2  h-11 lg:h-13"
+                  className="flex-1 w-full max-w-100 lg:max-w-none gap-2  min-h-11 lg:min-h-13"
                   disabled={added}
                 >
                   {added ? (

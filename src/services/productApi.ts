@@ -36,6 +36,15 @@ export const productApi = createApi({
         `/products${params ? `?${new URLSearchParams(params)}` : ""}`,
       transformResponse: (response: { data: Product[] }) => response.data,
     }),
+    searchProducts: builder.query<Product[], string>({
+      query: (searchTerm: string) =>
+        `/products?${new URLSearchParams({ search: searchTerm })}`,
+      transformResponse: (response: { data: Product[] }) => response.data,
+    }),
   }),
 });
-export const { useGetProductByIdQuery, useGetAllProductsQuery } = productApi;
+export const {
+  useGetProductByIdQuery,
+  useGetAllProductsQuery,
+  useSearchProductsQuery,
+} = productApi;

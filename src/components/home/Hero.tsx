@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Button from "../Button";
 import Container from "../Container";
 
@@ -16,12 +17,14 @@ function Hero() {
               of style.
             </p>
             <div className="mt-6 lg:mt-8">
-              <Button
-                color="black"
-                className="min-w-[210px]  h-13! text-[16px]! w-full min-[500px]:w-auto"
-              >
-                Shop Now
-              </Button>
+              <Link to="/shop">
+                <Button
+                  color="black"
+                  className="min-w-[210px]  h-13! text-[16px]! w-full min-[500px]:w-auto"
+                >
+                  Shop Now
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="flex flex-col gap-y-3 items-center min-[500px]:flex-row">
