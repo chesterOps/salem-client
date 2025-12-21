@@ -41,10 +41,15 @@ export const productApi = createApi({
         `/products?${new URLSearchParams({ search: searchTerm })}`,
       transformResponse: (response: { data: Product[] }) => response.data,
     }),
+    relatedProducts: builder.query<Product[], string>({
+      query: (productId: string) => `/products/${productId}/related`,
+      transformResponse: (response: { data: Product[] }) => response.data,
+    }),
   }),
 });
 export const {
   useGetProductByIdQuery,
   useGetAllProductsQuery,
   useSearchProductsQuery,
+  useRelatedProductsQuery,
 } = productApi;

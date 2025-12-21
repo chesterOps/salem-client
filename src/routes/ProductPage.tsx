@@ -2,7 +2,10 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addItem } from "../cartSlice";
-import { useGetProductByIdQuery } from "../services/productApi";
+import {
+  useGetProductByIdQuery,
+  useRelatedProductsQuery,
+} from "../services/productApi";
 import { checkLightness, unSlugify } from "../utils/helpers";
 import { sizes } from "../utils/constants";
 import React, { useEffect, useState } from "react";
@@ -23,6 +26,8 @@ function ProductPage() {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
   const { data: product, error, isLoading } = useGetProductByIdQuery(`${id}`);
+  const { data: relatedProducts, isLoading: relatedLoading } =
+    useRelatedProductsQuery(`${id}`);
   const [added, setAdded] = useState(false);
   const [selectedSize, setSelectedSize] = useState(product?.sizes[0] ?? "");
   const [selectedColor, setSelectedColor] = useState(
@@ -83,7 +88,7 @@ function ProductPage() {
     }, 2000);
   }
 
-  if (isLoading) return <ProductPageSkeleton />;
+  if (isLoading || relatedLoading) return <ProductPageSkeleton />;
 
   if ((error as any)?.status === 404 || !product) {
     return (
@@ -245,7 +250,9 @@ function ProductPage() {
       </section>
 
       {/* Related Products */}
-      <RelatedProducts />
+      {!relatedLoading && relatedProducts && (
+        <RelatedProducts relatedProducts={relatedProducts} />
+      )}
     </main>
   );
 }
