@@ -7,6 +7,7 @@ import ProductItem from "../components/product/ProductItem";
 import ProductsFilter from "../components/product/ProductsFilter";
 import ProductLoader from "../components/product/ProductLoader";
 import MobileProductsFilter from "../components/product/MobileProductsFilter";
+import NoProducts from "../components/product/NoProducts";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import React, { useState, useMemo } from "react";
 import { useGetProductsByCategoryQuery } from "../services/productApi";
@@ -212,6 +213,9 @@ function Category() {
                     imgCss="w-auto"
                   />
                 ))}
+              {!isLoading &&
+                paginatedProducts &&
+                paginatedProducts.length === 0 && <NoProducts type="filter" />}
             </div>
 
             {/* Pagination */}
