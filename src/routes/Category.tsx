@@ -132,11 +132,20 @@ function Category() {
   const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
 
   const handleSortChange = (value: string) => {
-    setSearchParams({ sortBy: value, page: "1" });
+    // Spread existing params to retain filters
+
+    setSearchParams({
+      ...Object.fromEntries(searchParams),
+      sortBy: value,
+      page: "1",
+    });
   };
 
   const handlePageChange = (page: number) => {
-    setSearchParams({ sortBy, page: page.toString() });
+    setSearchParams({
+      ...Object.fromEntries(searchParams),
+      page: page.toString(),
+    });
     window.scrollTo({ top: 0, behavior: "instant" });
   };
 
