@@ -142,7 +142,7 @@ function Category() {
 
   return (
     <main className="mb-[50px] lg:mb-20">
-      <BreadCrumb links={[{ name: "Casual" }]} />
+      <BreadCrumb links={[{ name: pageTitle }]} />
       <Container>
         <div className="flex gap-5">
           {/* Desktop Filter */}
@@ -158,7 +158,7 @@ function Category() {
             {/* Header */}
             <div className="flex items-center gap-2 justify-between mt-1 lg:mt-0 mb-7.5 lg:mb-4">
               <h1 className="text-2xl leading-8 lg:text-[32px] lg:leading-11 font-bold satoshi">
-                Casual
+                {pageTitle}
               </h1>
               <div className="flex items-center gap-3 flex-1 lg:flex-auto justify-between lg:justify-end">
                 {!isLoading && sortedProducts && sortedProducts.length > 0 && (
@@ -215,7 +215,7 @@ function Category() {
                 ))}
               {!isLoading &&
                 paginatedProducts &&
-                paginatedProducts.length === 0 && <NoProducts type="filter" />}
+                paginatedProducts.length === 0 && <NoProducts />}
             </div>
 
             {/* Pagination */}

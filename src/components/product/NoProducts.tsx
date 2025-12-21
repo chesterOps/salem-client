@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import ScControls from "../../assets/icons/ScControls";
 import Button from "../Button";
 
-function NoProducts({ type = "default" }: { type?: "default" | "filter" }) {
+function NoProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
   // Reset filters but keep sortBy
   const resetFilters = () => {
@@ -12,6 +12,15 @@ function NoProducts({ type = "default" }: { type?: "default" | "filter" }) {
     params.set("page", "1");
     setSearchParams(params);
   };
+
+  const hasFilters = (() => {
+    let result = false;
+    searchParams.forEach((_value, key) => {
+      if (key !== "sortBy" && key !== "page") result = true;
+    });
+    return result;
+  })();
+
   return (
     <div className="col-span-full flex flex-col items-center justify-center py-12 lg:py-16">
       <div className="text-center max-w-md">
@@ -24,7 +33,7 @@ function NoProducts({ type = "default" }: { type?: "default" | "filter" }) {
         <p className="text-black/60 mb-6 text-sm lg:text-base">
           We couldn't find any products. Try adjusting your search or filter
         </p>
-        {type === "filter" && (
+        {hasFilters && (
           <div className="flex justify-center">
             <Button onClick={resetFilters} color="white" className="px-8">
               Clear All Filters
