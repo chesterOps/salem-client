@@ -11,6 +11,7 @@ export interface Product {
     hex: string;
     name: string;
   }>;
+  sales: number;
   slug: string;
   sizes: string[];
   images: string[];
@@ -36,6 +37,10 @@ export const productApi = createApi({
         `/products${params ? `?${new URLSearchParams(params)}` : ""}`,
       transformResponse: (response: { data: Product[] }) => response.data,
     }),
+    getProductsByCategory: builder.query<Product[], string>({
+      query: (category: string) => `/products/category/${category}`,
+      transformResponse: (response: { data: Product[] }) => response.data,
+    }),
     searchProducts: builder.query<Product[], string>({
       query: (searchTerm: string) =>
         `/products?${new URLSearchParams({ search: searchTerm })}`,
@@ -52,4 +57,5 @@ export const {
   useGetAllProductsQuery,
   useSearchProductsQuery,
   useRelatedProductsQuery,
+  useGetProductsByCategoryQuery,
 } = productApi;

@@ -14,7 +14,7 @@ function Categories() {
             <div className="flex flex-col gap-4 md:gap-5">
               <div className="sm:flex grid grid-rows-[repeat(2,200px)]  min-[480px]:grid-rows-[repeat(2,1fr)]  gap-4 sm:flex-wrap  sm:flex-row md:gap-5">
                 <Link
-                  to="/categories/casual"
+                  to="/category/casual"
                   className="bg-white w-full sm:w-[calc(50%-10px)] md:w-[calc(37.5%-10px)] flex hover:[&>img]:scale-110 rounded-[20px] overflow-hidden relative"
                 >
                   <img
@@ -27,7 +27,7 @@ function Categories() {
                   </h3>
                 </Link>
                 <Link
-                  to="/categories/formal"
+                  to="/category/formal"
                   className="bg-white w-full sm:w-[calc(50%-10px)] md:w-[calc(62.5%-10px)]   flex hover:[&>img]:scale-110 rounded-[20px] overflow-hidden relative"
                 >
                   <img
@@ -44,7 +44,7 @@ function Categories() {
             <div className="flex flex-col gap-4 md:gap-5">
               <div className="sm:flex grid grid-rows-[repeat(2,200px)]  min-[480px]:grid-rows-[repeat(2,1fr)]  gap-4 sm:flex-wrap  sm:flex-row md:gap-5">
                 <Link
-                  to="/categories/party"
+                  to="/category/party"
                   className="bg-white w-full sm:w-[calc(50%-10px)] md:w-[calc(62.5%-10px)] flex hover:[&>img]:scale-110 rounded-[20px] overflow-hidden relative"
                 >
                   <img
@@ -57,7 +57,7 @@ function Categories() {
                   </h3>
                 </Link>
                 <Link
-                  to="/categories/gym"
+                  to="/category/gym"
                   className="bg-white w-full sm:w-[calc(50%-10px)] md:w-[calc(37.5%-10px)] flex hover:[&>img]:scale-110 rounded-[20px] overflow-hidden relative"
                 >
                   <img

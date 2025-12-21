@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { products } from "../data/products";
 import ScArrowLeft from "../assets/icons/ScArrowLeft";
 import ScCaretRight from "../assets/icons/ScCaretRight";
 import ScControls from "../assets/icons/ScControls";
@@ -7,12 +5,82 @@ import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
 import ProductItem from "../components/product/ProductItem";
 import ProductsFilter from "../components/product/ProductsFilter";
+import ProductLoader from "../components/product/ProductLoader";
 import MobileProductsFilter from "../components/product/MobileProductsFilter";
+import useDocumentTitle from "../hooks/useDocumentTitle";
+import { useGetProductsByCategoryQuery } from "../services/productApi";
+import { useState, useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { unSlugify } from "../utils/helpers";
 
 function Category() {
-  const [sortBy, setSortBy] = useState("most-popular");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || "newest";
+  const currentPage = parseInt(searchParams.get("page") || "1");
+  const itemsPerPage = 9;
+
+  const { name } = useParams();
+  const pageTitle = unSlugify(name || "");
+  useDocumentTitle(`${pageTitle}`);
 
   const [showFilters, setShowFilters] = useState(false);
+
+  const {
+    data: products,
+    error,
+    isLoading,
+  } = useGetProductsByCategoryQuery(name || "");
+
+  // Sort products
+  const sortedProducts = useMemo(() => {
+    if (!products) return [];
+
+    const sorted = [...products];
+
+    switch (sortBy) {
+      case "newest":
+        return sorted.reverse();
+      case "price-low":
+        return sorted.sort((a, b) => {
+          const priceA = a.discount
+            ? a.price * (1 - a.discount / 100)
+            : a.price;
+          const priceB = b.discount
+            ? b.price * (1 - b.discount / 100)
+            : b.price;
+          return priceA - priceB;
+        });
+      case "price-high":
+        return sorted.sort((a, b) => {
+          const priceA = a.discount
+            ? a.price * (1 - a.discount / 100)
+            : a.price;
+          const priceB = b.discount
+            ? b.price * (1 - b.discount / 100)
+            : b.price;
+          return priceB - priceA;
+        });
+      case "most-popular":
+        return sorted.sort((a, b) => b.sales - a.sales);
+      default:
+        return sorted.reverse();
+    }
+  }, [products, sortBy]);
+
+  // Pagination
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+
+  const handleSortChange = (value: string) => {
+    setSearchParams({ sortBy: value, page: "1" });
+  };
+
+  const handlePageChange = (page: number) => {
+    setSearchParams({ sortBy, page: page.toString() });
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
 
   return (
     <main className="mb-[50px] lg:mb-20">
@@ -35,9 +103,14 @@ function Category() {
                 Casual
               </h1>
               <div className="flex items-center gap-3 flex-1 lg:flex-auto justify-between lg:justify-end">
-                <span className="text-sm lg:text-base lg:leading-5.5 text-black/60">
-                  Showing 1-{products.length} of {products.length} Products
-                </span>
+                {!isLoading && sortedProducts && sortedProducts.length > 0 && (
+                  <span className="text-sm lg:text-base lg:leading-5.5 text-black/60">
+                    Showing {startIndex + 1}-
+                    {Math.min(endIndex, sortedProducts.length)} of{" "}
+                    {sortedProducts.length} Products
+                  </span>
+                )}
+
                 {/* Sort */}
                 <div className="hidden lg:flex items-center">
                   <span className="text-black/60 inline-block mr-1">
@@ -46,11 +119,11 @@ function Category() {
                   <div className="flex items-center gap-1">
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
+                      onChange={(e) => handleSortChange(e.target.value)}
                       className="bg-transparent appearance-none text-sm outline-none cursor-pointer"
                     >
-                      <option value="most-popular">Most Popular</option>
                       <option value="newest">Newest</option>
+                      <option value="most-popular">Most Popular</option>
                       <option value="price-low">Price: Low to High</option>
                       <option value="price-high">Price: High to Low</option>
                     </select>
@@ -68,43 +141,84 @@ function Category() {
 
             {/* Products Grid */}
             <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6 lg:gap-y-9 lg:gap-x-5 mb-6 lg:mb-8">
-              {products.map((product) => (
-                <ProductItem
-                  key={product.id}
-                  product={product}
-                  imgCss="w-auto aspect-square"
-                />
-              ))}
+              {isLoading && <ProductLoader length={9} />}
+              {error && <p>Something went wrong.</p>}
+              {!isLoading &&
+                paginatedProducts &&
+                paginatedProducts.length > 0 &&
+                paginatedProducts.map((product) => (
+                  <ProductItem
+                    key={product.id}
+                    product={product}
+                    imgCss="w-auto aspect-square"
+                  />
+                ))}
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between border-t gap-1 min-[440px]:gap-2 border-black/10 pt-5">
-              <button className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50">
-                <ScArrowLeft className="size-4 lg:size-5" />
-                <span className="hidden min-[440px]:inline-flex">Previous</span>
-              </button>
-              <div className="flex gap-1 min-[440px]:gap-2">
-                <button className="size-9 lg:size-10 font-medium flex items-center text-xs leading-5 lg:text-sm justify-center rounded-lg bg-black/6">
-                  1
+            {!isLoading && (
+              <div className="flex items-center justify-between border-t gap-1 min-[440px]:gap-2 border-black/10 pt-5">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ScArrowLeft className="size-4 lg:size-5" />
+                  <span className="hidden min-[440px]:inline-flex">
+                    Previous
+                  </span>
                 </button>
-                <button className="size-9 lg:size-10 items-center justify-center text-xs leading-5 lg:text-sm text-black/60 hover:text-black rounded-lg hover:bg-black/6 transition-colors">
-                  2
-                </button>
-                <button className="size-9 lg:size-10 items-center text-xs leading-5 lg:text-sm justify-center text-black/60 hover:text-black rounded-lg hover:bg-black/6 transition-colors">
-                  3
-                </button>
-                <span className="size-9 lg:size-10 text-xs leading-5 lg:text-sm text-black/60 flex items-center justify-center">
-                  ...
-                </span>
-                <button className="size-9 lg:size-10 text-xs leading-5 lg:text-sm items-center justify-center text-black/60 hover:text-black rounded-lg hover:bg-black/6 transition-colors">
-                  10
+                <div className="flex gap-1 min-[440px]:gap-2">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`size-9 lg:size-10 font-medium flex items-center text-xs leading-5 lg:text-sm justify-center rounded-lg transition-colors ${
+                          currentPage === pageNum
+                            ? "bg-black/6"
+                            : "text-black/60 hover:text-black hover:bg-black/6"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <>
+                      <span className="size-9 lg:size-10 text-xs leading-5 lg:text-sm text-black/60 flex items-center justify-center">
+                        ...
+                      </span>
+                      <button
+                        onClick={() => handlePageChange(totalPages)}
+                        className="size-9 lg:size-10 text-xs leading-5 lg:text-sm flex items-center justify-center text-black/60 hover:text-black rounded-lg hover:bg-black/6 transition-colors"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+                </div>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="hidden min-[440px]:inline-flex">Next</span>
+                  <ScArrowLeft className="size-4 lg:size-5 rotate-180" />
                 </button>
               </div>
-              <button className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50">
-                <span className="hidden min-[440px]:inline-flex">Next</span>
-                <ScArrowLeft className="size-4 lg:size-5 rotate-180" />
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </Container>

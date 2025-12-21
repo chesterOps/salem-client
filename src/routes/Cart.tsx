@@ -16,9 +16,9 @@ import ScTrash from "../assets/icons/ScTrash";
 import BreadCrumb from "../components/BreadCrumb";
 import Button from "../components/Button";
 import Container from "../components/Container";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { Link } from "react-router-dom";
 import { sizes } from "../utils/constants";
-import useDocumentTitle from "../hooks/useDocumentTitle";
 
 function Cart() {
   // Get cart items from Redux store
