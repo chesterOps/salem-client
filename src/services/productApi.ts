@@ -11,6 +11,7 @@ export interface Product {
     hex: string;
     name: string;
   }>;
+  tag: string;
   sales: number;
   slug: string;
   sizes: string[];

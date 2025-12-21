@@ -27,7 +27,7 @@ function ProductItem({
           src={product.mainImage}
           alt={product.title}
           className={twMerge(
-            "md:w-full h-full block w-[200px] object-cover group-hover:scale-110 transition-transform duration-300",
+            "md:w-full h-full block aspect-square w-[200px] object-contain group-hover:scale-110 transition-transform duration-300",
             imgCss && imgCss
           )}
         />

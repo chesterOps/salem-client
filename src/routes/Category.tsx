@@ -8,10 +8,11 @@ import ProductsFilter from "../components/product/ProductsFilter";
 import ProductLoader from "../components/product/ProductLoader";
 import MobileProductsFilter from "../components/product/MobileProductsFilter";
 import useDocumentTitle from "../hooks/useDocumentTitle";
+import React, { useState, useMemo } from "react";
 import { useGetProductsByCategoryQuery } from "../services/productApi";
-import { useState, useMemo } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { unSlugify } from "../utils/helpers";
+import { sizes } from "../utils/constants";
 
 function Category() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,17 +32,65 @@ function Category() {
     isLoading,
   } = useGetProductsByCategoryQuery(name || "");
 
-  // Sort products
+  // Get filter values from URL
+  const selectedTags =
+    searchParams.get("tags")?.split(",").filter(Boolean) || [];
+  const selectedSizes =
+    searchParams.get("sizes")?.split(",").filter(Boolean) || [];
+  const selectedColors =
+    searchParams.get("colors")?.split(",").filter(Boolean) || [];
+  const minPrice = parseInt(searchParams.get("minPrice") || "0");
+  const maxPrice = parseInt(searchParams.get("maxPrice") || "300");
+
+  // Filter and sort products
   const sortedProducts = useMemo(() => {
     if (!products) return [];
 
-    const sorted = [...products];
+    let filtered = [...products];
 
+    // Apply category filter
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((product) =>
+        selectedTags.some(
+          (tag) => product.tag.toLowerCase() === tag.toLowerCase()
+        )
+      );
+    }
+
+    // Apply size filter
+    if (selectedSizes.length > 0) {
+      filtered = filtered.filter((product) =>
+        product.sizes.some((size) =>
+          selectedSizes.includes(sizes[size as keyof typeof sizes])
+        )
+      );
+    }
+
+    // Apply color filter
+    if (selectedColors.length > 0) {
+      filtered = filtered.filter((product) =>
+        product.colors.some((color) =>
+          selectedColors.some((selectedColor) =>
+            color.name.toLowerCase().includes(selectedColor.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // Apply price filter
+    filtered = filtered.filter((product) => {
+      const price = product.discount
+        ? product.price * (1 - product.discount / 100)
+        : product.price;
+      return price >= minPrice && price <= maxPrice;
+    });
+
+    // Sort
     switch (sortBy) {
       case "newest":
-        return sorted.reverse();
+        return filtered.reverse();
       case "price-low":
-        return sorted.sort((a, b) => {
+        return filtered.sort((a, b) => {
           const priceA = a.discount
             ? a.price * (1 - a.discount / 100)
             : a.price;
@@ -51,7 +100,7 @@ function Category() {
           return priceA - priceB;
         });
       case "price-high":
-        return sorted.sort((a, b) => {
+        return filtered.sort((a, b) => {
           const priceA = a.discount
             ? a.price * (1 - a.discount / 100)
             : a.price;
@@ -61,11 +110,19 @@ function Category() {
           return priceB - priceA;
         });
       case "most-popular":
-        return sorted.sort((a, b) => b.sales - a.sales);
+        return filtered.sort((a, b) => b.sales - a.sales);
       default:
-        return sorted.reverse();
+        return filtered.reverse();
     }
-  }, [products, sortBy]);
+  }, [
+    products,
+    sortBy,
+    selectedTags,
+    selectedSizes,
+    selectedColors,
+    minPrice,
+    maxPrice,
+  ]);
 
   // Pagination
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
@@ -130,12 +187,14 @@ function Category() {
                     <ScCaretRight opacity="1" className="size-4 rotate-90" />
                   </div>
                 </div>
-                <button
-                  className="lg:hidden size-8 flex justify-center items-center bg-[#F0F0F0] rounded-full"
-                  onClick={() => setShowFilters(true)}
-                >
-                  <ScControls />
-                </button>
+                <div className="flex justify-end flex-1 lg:hidden">
+                  <button
+                    className=" size-8 justify-center flex items-center bg-[#F0F0F0] rounded-full"
+                    onClick={() => setShowFilters(true)}
+                  >
+                    <ScControls />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -150,75 +209,77 @@ function Category() {
                   <ProductItem
                     key={product.id}
                     product={product}
-                    imgCss="w-auto aspect-square"
+                    imgCss="w-auto"
                   />
                 ))}
             </div>
 
             {/* Pagination */}
-            {!isLoading && (
-              <div className="flex items-center justify-between border-t gap-1 min-[440px]:gap-2 border-black/10 pt-5">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ScArrowLeft className="size-4 lg:size-5" />
-                  <span className="hidden min-[440px]:inline-flex">
-                    Previous
-                  </span>
-                </button>
-                <div className="flex gap-1 min-[440px]:gap-2">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
+            {!isLoading &&
+              paginatedProducts &&
+              paginatedProducts.length > itemsPerPage && (
+                <div className="flex items-center justify-between border-t gap-1 min-[440px]:gap-2 border-black/10 pt-5">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ScArrowLeft className="size-4 lg:size-5" />
+                    <span className="hidden min-[440px]:inline-flex">
+                      Previous
+                    </span>
+                  </button>
+                  <div className="flex gap-1 min-[440px]:gap-2">
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
 
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`size-9 lg:size-10 font-medium flex items-center text-xs leading-5 lg:text-sm justify-center rounded-lg transition-colors ${
-                          currentPage === pageNum
-                            ? "bg-black/6"
-                            : "text-black/60 hover:text-black hover:bg-black/6"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                  {totalPages > 5 && currentPage < totalPages - 2 && (
-                    <>
-                      <span className="size-9 lg:size-10 text-xs leading-5 lg:text-sm text-black/60 flex items-center justify-center">
-                        ...
-                      </span>
-                      <button
-                        onClick={() => handlePageChange(totalPages)}
-                        className="size-9 lg:size-10 text-xs leading-5 lg:text-sm flex items-center justify-center text-black/60 hover:text-black rounded-lg hover:bg-black/6 transition-colors"
-                      >
-                        {totalPages}
-                      </button>
-                    </>
-                  )}
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`size-9 lg:size-10 font-medium flex items-center text-xs leading-5 lg:text-sm justify-center rounded-lg transition-colors ${
+                            currentPage === pageNum
+                              ? "bg-black/6"
+                              : "text-black/60 hover:text-black hover:bg-black/6"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    {totalPages > 5 && currentPage < totalPages - 2 && (
+                      <React.Fragment>
+                        <span className="size-9 lg:size-10 text-xs leading-5 lg:text-sm text-black/60 flex items-center justify-center">
+                          ...
+                        </span>
+                        <button
+                          onClick={() => handlePageChange(totalPages)}
+                          className="size-9 lg:size-10 text-xs leading-5 lg:text-sm flex items-center justify-center text-black/60 hover:text-black rounded-lg hover:bg-black/6 transition-colors"
+                        >
+                          {totalPages}
+                        </button>
+                      </React.Fragment>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="hidden min-[440px]:inline-flex">Next</span>
+                    <ScArrowLeft className="size-4 lg:size-5 rotate-180" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-2.5 lg:px-3.5 py-2 text-xs lg:text-sm flex items-center gap-2 leading-5 font-medium border border-black/10 rounded-lg hover:bg-black/6 hover:border-[#f0f0f0] ease-in-out duration-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="hidden min-[440px]:inline-flex">Next</span>
-                  <ScArrowLeft className="size-4 lg:size-5 rotate-180" />
-                </button>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </Container>

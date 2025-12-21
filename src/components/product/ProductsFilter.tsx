@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { checkLightness } from "../../utils/helpers";
 import { twMerge } from "tailwind-merge";
 import { BsCheck2 } from "react-icons/bs";
@@ -6,13 +7,31 @@ import ScControls from "../../assets/icons/ScControls";
 import ScCaretRight from "../../assets/icons/ScCaretRight";
 import ScCheck from "../../assets/icons/ScCheck";
 import Button from "../Button";
+import { colors } from "../../utils/constants";
 
 function ProductsFilter() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
-  const categories = ["T-shirts", "Shorts", "Shirts", "Jeans"];
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get filter values from URL
+  const selectedTags =
+    searchParams.get("tags")?.split(",").filter(Boolean) || [];
+  const selectedSizes =
+    searchParams.get("sizes")?.split(",").filter(Boolean) || [];
+  const selectedColors =
+    searchParams.get("colors")?.split(",").filter(Boolean) || [];
+  const minPrice = parseInt(searchParams.get("minPrice") || "0");
+  const maxPrice = parseInt(searchParams.get("maxPrice") || "300");
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    minPrice,
+    maxPrice,
+  ]);
+
+  // Sync priceRange with URL params
+  useEffect(() => {
+    setPriceRange([minPrice, maxPrice]);
+  }, [minPrice, maxPrice]);
+  // Tags
+  const tags = ["T-shirts", "Shorts", "Shirts", "Jeans"];
   const [dropDowns, setDropDowns] = useState({
     price: true,
     colors: true,
@@ -29,37 +48,73 @@ function ProductsFilter() {
     "3X-Large",
     "4X-Large",
   ];
-  const colors = [
-    { name: "Green", hex: "#00C12B" },
-    { name: "Red", hex: "#F50606" },
-    { name: "Yellow", hex: "#F5DD06" },
-    { name: "Orange", hex: "#F57906" },
-    { name: "Cyan", hex: "#06CAF5" },
-    { name: "Blue", hex: "#063AF5" },
-    { name: "Purple", hex: "#7D06F5" },
-    { name: "Pink", hex: "#F506A4" },
-    { name: "White", hex: "#FFFFFF" },
-    { name: "Black", hex: "#000000" },
-  ];
 
-  const toggleCategory = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
+  const updateFilters = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set(key, value);
+    params.set("page", "1"); // Reset to page 1 when filtering
+    setSearchParams(params);
+  };
+
+  const toggleTag = (tag: string) => {
+    const newTags = selectedTags.includes(tag)
+      ? selectedTags.filter((t) => t !== tag)
+      : [...selectedTags, tag];
+
+    if (newTags.length === 0) {
+      const params = new URLSearchParams(searchParams);
+      params.delete("tags");
+      params.set("page", "1");
+      setSearchParams(params);
+    } else {
+      updateFilters("tags", newTags.join(","));
+    }
   };
 
   const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
-      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
-    );
+    const newColors = selectedColors.includes(color)
+      ? selectedColors.filter((c) => c !== color)
+      : [...selectedColors, color];
+
+    if (newColors.length === 0) {
+      const params = new URLSearchParams(searchParams);
+      params.delete("colors");
+      params.set("page", "1");
+      setSearchParams(params);
+    } else {
+      updateFilters("colors", newColors.join(","));
+    }
   };
 
   const toggleSize = (size: string) => {
-    setSelectedSizes((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
-    );
+    const newSizes = selectedSizes.includes(size)
+      ? selectedSizes.filter((s) => s !== size)
+      : [...selectedSizes, size];
+
+    if (newSizes.length === 0) {
+      const params = new URLSearchParams(searchParams);
+      params.delete("sizes");
+      params.set("page", "1");
+      setSearchParams(params);
+    } else {
+      updateFilters("sizes", newSizes.join(","));
+    }
+  };
+
+  const handlePriceChange = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set("minPrice", priceRange[0].toString());
+    params.set("maxPrice", priceRange[1].toString());
+    params.set("page", "1");
+    setSearchParams(params);
+  };
+
+  const resetFilters = () => {
+    const params = new URLSearchParams();
+    const sortBy = searchParams.get("sortBy");
+    if (sortBy) params.set("sortBy", sortBy);
+    params.set("page", "1");
+    setSearchParams(params);
   };
   return (
     <aside className={`bg-white w-[295px] hidden lg:block`}>
@@ -71,28 +126,28 @@ function ProductsFilter() {
 
         <hr className="border-black/10 mb-6" />
 
-        {/* Categories */}
+        {/* Tags */}
         <div className="mb-6 flex flex-col gap-5">
-          {categories.map((category) => (
+          {tags.map((tag) => (
             <label
-              key={category}
+              key={tag}
               className="flex items-center cursor-pointer group justify-between satoshi"
             >
               {/* Label text for the checkbox */}
               <span
                 className={twMerge(
                   "text-base leading-4 text-black/60 group-hover:text-black transition-colors",
-                  selectedCategories.includes(category) && "text-black"
+                  selectedTags.includes(tag) && "text-black"
                 )}
               >
-                {category}
+                {tag}
               </span>
               {/* Hidden native checkbox kept for accessibility */}
               <input
                 type="checkbox"
                 className="peer hidden"
-                checked={selectedCategories.includes(category)}
-                onChange={() => toggleCategory(category)}
+                checked={selectedTags.includes(tag)}
+                onChange={() => toggleTag(tag)}
               />
               {/* Visible custom checkbox */}
               <span className="w-4 h-4 flex items-center justify-center border rounded-xs border-black/20 peer-checked:bg-[#121212] peer-checked:border-[#121212] peer-checked:[&>svg]:opacity-100">
@@ -190,6 +245,8 @@ function ProductsFilter() {
                     setPriceRange([value, priceRange[1]]);
                   }
                 }}
+                onMouseUp={handlePriceChange}
+                onTouchEnd={handlePriceChange}
                 className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:shadow-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
               />
 
@@ -205,6 +262,8 @@ function ProductsFilter() {
                     setPriceRange([priceRange[0], value]);
                   }
                 }}
+                onMouseUp={handlePriceChange}
+                onTouchEnd={handlePriceChange}
                 className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:shadow-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
               />
             </div>
@@ -304,7 +363,9 @@ function ProductsFilter() {
         </div>
 
         {/* Apply Filter Button */}
-        <Button className="w-full">Reset Filters</Button>
+        <Button onClick={resetFilters} className="w-full">
+          Reset Filters
+        </Button>
       </div>
     </aside>
   );

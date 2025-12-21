@@ -4,7 +4,6 @@ import Container from "../Container";
 import ProductItem from "./ProductItem";
 
 function RelatedProducts({ relatedProducts }: { relatedProducts: Product[] }) {
-  console.log("Related Products:", relatedProducts);
   return (
     <section className="mt-[50px] lg:mt-20">
       <Container>

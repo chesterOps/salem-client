@@ -2,11 +2,13 @@ import ScCheck from "../../assets/icons/ScCheck";
 import ScCaretRight from "../../assets/icons/ScCaretRight";
 import Button from "../Button";
 import ScClose from "../../assets/icons/ScClose";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { checkLightness } from "../../utils/helpers";
 import { twMerge } from "tailwind-merge";
 import { useDisableScroll } from "../../hooks/useDisableScroll";
 import { BsCheck2 } from "react-icons/bs";
+import { colors } from "../../utils/constants";
 
 function MobileProductsFilter({
   open,
@@ -15,12 +17,32 @@ function MobileProductsFilter({
   open: boolean;
   handleClose: () => void;
 }) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
-  const categories = ["T-shirts", "Shorts", "Shirts", "Jeans"];
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Temporary state (not applied until user clicks "Apply")
+  const [tempTags, setTempTags] = useState<string[]>([]);
+  const [tempColors, setTempColors] = useState<string[]>([]);
+  const [tempSizes, setTempSizes] = useState<string[]>([]);
+  const [tempPriceRange, setTempPriceRange] = useState<[number, number]>([
+    0, 300,
+  ]);
+
+  const tags = ["T-shirts", "Shorts", "Shirts", "Jeans"];
   useDisableScroll(open);
+
+  // Initialize temp state from URL when opened
+  useEffect(() => {
+    if (open) {
+      setTempTags(searchParams.get("tags")?.split(",").filter(Boolean) || []);
+      setTempSizes(searchParams.get("sizes")?.split(",").filter(Boolean) || []);
+      setTempColors(
+        searchParams.get("colors")?.split(",").filter(Boolean) || []
+      );
+      const minPrice = parseInt(searchParams.get("minPrice") || "0");
+      const maxPrice = parseInt(searchParams.get("maxPrice") || "300");
+      setTempPriceRange([minPrice, maxPrice]);
+    }
+  }, [open, searchParams]);
   const [dropDowns, setDropDowns] = useState({
     price: true,
     colors: true,
@@ -37,37 +59,71 @@ function MobileProductsFilter({
     "3X-Large",
     "4X-Large",
   ];
-  const colors = [
-    { name: "Green", hex: "#00C12B" },
-    { name: "Red", hex: "#F50606" },
-    { name: "Yellow", hex: "#F5DD06" },
-    { name: "Orange", hex: "#F57906" },
-    { name: "Cyan", hex: "#06CAF5" },
-    { name: "Blue", hex: "#063AF5" },
-    { name: "Purple", hex: "#7D06F5" },
-    { name: "Pink", hex: "#F506A4" },
-    { name: "White", hex: "#FFFFFF" },
-    { name: "Black", hex: "#000000" },
-  ];
 
-  const toggleCategory = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+  const toggleTag = (tag: string) => {
+    setTempTags((prev) =>
+      prev.includes(tag) ? prev.filter((c) => c !== tag) : [...prev, tag]
     );
   };
 
   const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
+    setTempColors((prev) =>
       prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
     );
   };
 
   const toggleSize = (size: string) => {
-    setSelectedSizes((prev) =>
+    setTempSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
     );
+  };
+
+  const applyFilters = () => {
+    const params = new URLSearchParams(searchParams);
+
+    // Update filter params
+    if (tempTags.length > 0) {
+      params.set("tags", tempTags.join(","));
+    } else {
+      params.delete("tags");
+    }
+
+    if (tempSizes.length > 0) {
+      params.set("sizes", tempSizes.join(","));
+    } else {
+      params.delete("sizes");
+    }
+
+    if (tempColors.length > 0) {
+      params.set("colors", tempColors.join(","));
+    } else {
+      params.delete("colors");
+    }
+
+    params.set("minPrice", tempPriceRange[0].toString());
+    params.set("maxPrice", tempPriceRange[1].toString());
+    params.set("page", "1");
+
+    setSearchParams(params);
+    handleClose();
+  };
+
+  const clearFilters = () => {
+    // Reset temp state
+    setTempTags([]);
+    setTempSizes([]);
+    setTempColors([]);
+    setTempPriceRange([0, 300]);
+
+    // Reset URL params
+    const params = new URLSearchParams();
+    const sortBy = searchParams.get("sortBy");
+    if (sortBy) params.set("sortBy", sortBy);
+    params.set("page", "1");
+    setSearchParams(params);
+
+    // Close filter panel
+    handleClose();
   };
   return (
     <React.Fragment>
@@ -95,28 +151,28 @@ function MobileProductsFilter({
             <hr className="border-black/10 mb-5" />
           </div>
 
-          {/* Categories */}
+          {/* Tags */}
           <div className="mb-4 flex flex-col gap-5">
-            {categories.map((category) => (
+            {tags.map((tag) => (
               <label
-                key={category}
+                key={tag}
                 className="flex items-center cursor-pointer group justify-between satoshi"
               >
                 {/* Label text for the checkbox */}
                 <span
                   className={twMerge(
                     "text-base leading-4 text-black/60 group-hover:text-black transition-colors",
-                    selectedCategories.includes(category) && "text-black"
+                    tempTags.includes(tag) && "text-black"
                   )}
                 >
-                  {category}
+                  {tag}
                 </span>
                 {/* Hidden native checkbox kept for accessibility */}
                 <input
                   type="checkbox"
                   className="peer hidden"
-                  checked={selectedCategories.includes(category)}
-                  onChange={() => toggleCategory(category)}
+                  checked={tempTags.includes(tag)}
+                  onChange={() => toggleTag(tag)}
                 />
                 {/* Visible custom checkbox */}
                 <span className="w-4 h-4 flex items-center justify-center border rounded-xs border-black/20 peer-checked:bg-[#121212] peer-checked:border-[#121212] peer-checked:[&>svg]:opacity-100">
@@ -162,8 +218,8 @@ function MobileProductsFilter({
                 <div
                   className="absolute h-1.5 bg-black rounded-full"
                   style={{
-                    left: `${(priceRange[0] / 300) * 100}%`,
-                    right: `${100 - (priceRange[1] / 300) * 100}%`,
+                    left: `${(tempPriceRange[0] / 300) * 100}%`,
+                    right: `${100 - (tempPriceRange[1] / 300) * 100}%`,
                   }}
                 ></div>
 
@@ -171,34 +227,34 @@ function MobileProductsFilter({
                 <div
                   className="absolute top-6 text-sm bg-white font-medium whitespace-nowrap"
                   style={{
-                    left: `${(priceRange[0] / 300) * 100}%`,
+                    left: `${(tempPriceRange[0] / 300) * 100}%`,
                     transform: `translateX(${
-                      priceRange[0] / 300 < 0.15
+                      tempPriceRange[0] / 300 < 0.15
                         ? "0%"
-                        : priceRange[0] / 300 > 0.85
+                        : tempPriceRange[0] / 300 > 0.85
                         ? "-100%"
                         : "-50%"
                     })`,
                   }}
                 >
-                  ${priceRange[0]}
+                  ${tempPriceRange[0]}
                 </div>
 
                 {/* Max value label that moves with thumb */}
                 <div
                   className="absolute top-6 bg-white text-sm font-medium whitespace-nowrap"
                   style={{
-                    left: `${(priceRange[1] / 300) * 100}%`,
+                    left: `${(tempPriceRange[1] / 300) * 100}%`,
                     transform: `translateX(${
-                      priceRange[1] / 300 < 0.15
+                      tempPriceRange[1] / 300 < 0.15
                         ? "0%"
-                        : priceRange[1] / 300 > 0.85
+                        : tempPriceRange[1] / 300 > 0.85
                         ? "-100%"
                         : "-50%"
                     })`,
                   }}
                 >
-                  ${priceRange[1]}
+                  ${tempPriceRange[1]}
                 </div>
 
                 {/* Min range input */}
@@ -206,11 +262,11 @@ function MobileProductsFilter({
                   type="range"
                   min="0"
                   max="300"
-                  value={priceRange[0]}
+                  value={tempPriceRange[0]}
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value < priceRange[1]) {
-                      setPriceRange([value, priceRange[1]]);
+                    if (value < tempPriceRange[1]) {
+                      setTempPriceRange([value, tempPriceRange[1]]);
                     }
                   }}
                   className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:shadow-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
@@ -221,11 +277,11 @@ function MobileProductsFilter({
                   type="range"
                   min="0"
                   max="300"
-                  value={priceRange[1]}
+                  value={tempPriceRange[1]}
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > priceRange[0]) {
-                      setPriceRange([priceRange[0], value]);
+                    if (value > tempPriceRange[0]) {
+                      setTempPriceRange([tempPriceRange[0], value]);
                     }
                   }}
                   className="absolute w-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:shadow-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
@@ -266,7 +322,7 @@ function MobileProductsFilter({
                     title={color.name}
                     onClick={() => toggleColor(color.name)}
                   >
-                    {selectedColors.includes(color.name) && (
+                    {tempColors.includes(color.name) && (
                       <ScCheck
                         color={
                           checkLightness(color.hex) === "light"
@@ -312,7 +368,7 @@ function MobileProductsFilter({
                     key={size}
                     onClick={() => toggleSize(size)}
                     className={`px-5 py-2.5 rounded-full text-sm transition-all ${
-                      selectedSizes.includes(size)
+                      tempSizes.includes(size)
                         ? "bg-black text-white"
                         : "bg-[#F0F0F0] text-black/60 hover:bg-black/10"
                     }`}
@@ -325,12 +381,16 @@ function MobileProductsFilter({
           </div>
           <div className="flex flex-col min-[500px]:flex-row items-center gap-3">
             <Button
+              onClick={clearFilters}
               className="w-full min-[500px]:flex-1 h-12 text-sm"
               color="white"
             >
               Clear Filters
             </Button>
-            <Button className="w-full min-[500px]:flex-1 h-12 text-sm">
+            <Button
+              onClick={applyFilters}
+              className="w-full min-[500px]:flex-1 h-12 text-sm"
+            >
               Apply Filters
             </Button>
           </div>
