@@ -33,11 +33,12 @@ export const productApi = createApi({
       query: (id: string) => `/products/${id}`,
       transformResponse: (response: ProductResponse) => response.data,
     }),
-    getAllProducts: builder.query<Product[], string | undefined>({
+    getAllProducts: builder.query<Product[], string>({
       query: (params) =>
         `/products${params ? `?${new URLSearchParams(params)}` : ""}`,
       transformResponse: (response: { data: Product[] }) => response.data,
     }),
+
     getProductsByCategory: builder.query<Product[], string>({
       query: (category: string) => `/products/category/${category}`,
       transformResponse: (response: { data: Product[] }) => response.data,

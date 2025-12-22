@@ -1,6 +1,6 @@
 export const navigationLinks = [
   { name: "Shop", href: "/shop" },
-  { name: "On Sale", href: "#" },
+  { name: "On Sale", href: "/sale" },
   { name: "New Arrivals", href: "#" },
   { name: "Brands", href: "#" },
 ];

@@ -6,6 +6,8 @@ import ProductPage from "./routes/ProductPage";
 import Cart from "./routes/Cart";
 import Category from "./routes/Category";
 import NotFound from "./routes/NotFound";
+import Shop from "./routes/Shop";
+import Sale from "./routes/Sale";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route element={<MainLayout />}>
           <Route index path="/" element={<Home />} />
           <Route path="/category/:name" element={<Category />} />
+          <Route path="/sale" element={<Sale />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="*" element={<NotFound />} />

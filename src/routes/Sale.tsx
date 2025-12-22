@@ -1,11 +1,8 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { useGetProductsByCategoryQuery } from "../services/productApi";
-import { unSlugify } from "../utils/helpers";
 import ScCaretRight from "../assets/icons/ScCaretRight";
 import ScControls from "../assets/icons/ScControls";
 import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
+import Pagination from "../components/Pagination";
 import MobileProductsFilter from "../components/product/MobileProductsFilter";
 import NoProducts from "../components/product/NoProducts";
 import ProductItem from "../components/product/ProductItem";
@@ -14,12 +11,11 @@ import ProductsFilter from "../components/product/ProductsFilter";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import usePagination from "../hooks/usePagination";
 import useSortFilter from "../hooks/useSortFilter";
-import Pagination from "../components/Pagination";
+import { useState } from "react";
+import { useGetAllProductsQuery } from "../services/productApi";
 
-function Category() {
-  const { name } = useParams();
-  const pageTitle = unSlugify(name || "");
-  useDocumentTitle(`${pageTitle}`);
+function Sale() {
+  useDocumentTitle("On Sale");
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -27,7 +23,7 @@ function Category() {
     data: products,
     error,
     isLoading,
-  } = useGetProductsByCategoryQuery(name || "");
+  } = useGetAllProductsQuery("discount[gt]=0");
 
   // Sort and Filter
   const { sortedProducts, handleSortChange, sortBy } = useSortFilter(
@@ -47,7 +43,7 @@ function Category() {
 
   return (
     <main className="mb-[50px] lg:mb-20">
-      <BreadCrumb links={[{ name: pageTitle }]} />
+      <BreadCrumb links={[{ name: "On Sale" }]} />
       <Container>
         <div className="flex gap-5">
           {/* Desktop Filter */}
@@ -63,7 +59,7 @@ function Category() {
             {/* Header */}
             <div className="flex items-center gap-2 justify-between mt-1 lg:mt-0 mb-7.5 lg:mb-4">
               <h1 className="text-2xl leading-8 lg:text-[32px] lg:leading-11 font-bold satoshi">
-                {pageTitle}
+                On Sale
               </h1>
               <div className="flex items-center gap-3 flex-1 lg:flex-auto justify-between lg:justify-end">
                 {!isLoading && sortedProducts && sortedProducts.length > 0 && (
@@ -140,4 +136,4 @@ function Category() {
   );
 }
 
-export default Category;
+export default Sale;

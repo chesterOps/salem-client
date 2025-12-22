@@ -59,7 +59,22 @@ function MobileNavigation({
               )}
             </NavLink>
           </li>
-          {navigationLinks.slice(1).map((item, i) => (
+          <li>
+            <NavLink to={navigationLinks[1].href}>
+              {({ isActive }) => (
+                <span
+                  className={twMerge(
+                    "px-4 py-3 inline-block w-full text-lg hover:bg-[#f0f0f0]",
+                    isActive && "bg-[#f8f8f8]"
+                  )}
+                >
+                  {navigationLinks[1].name}
+                </span>
+              )}
+            </NavLink>
+          </li>
+
+          {navigationLinks.slice(2).map((item, i) => (
             <li key={i}>
               <Link to={item.href}>
                 <span

@@ -48,8 +48,22 @@ function Navigation() {
                 )}
               </NavLink>
             </li>
+            <li>
+              <NavLink to={navigationLinks[1].href}>
+                {({ isActive }) => (
+                  <span
+                    className={twMerge(
+                      "text-black transition-colors duration-200 hover:text-black/60 ease-in-out",
+                      isActive && "text-black/60"
+                    )}
+                  >
+                    {navigationLinks[1].name}
+                  </span>
+                )}
+              </NavLink>
+            </li>
 
-            {navigationLinks.slice(1).map((link) => (
+            {navigationLinks.slice(2).map((link) => (
               <li key={link.name} className="text-base leading-[22px]">
                 <Link to={link.href}>
                   <span
